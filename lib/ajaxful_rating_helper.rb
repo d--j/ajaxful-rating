@@ -1,5 +1,7 @@
 module AjaxfulRating # :nodoc:
+  
   module Helper
+    
     class MissingRateRoute < StandardError
       def to_s
         "Add :member => {:rate => :post} to your routes, or specify a custom url in the options."
@@ -103,8 +105,21 @@ module AjaxfulRating # :nodoc:
     #     <%= ajaxful_rating_style %>
     #   </head>
     def ajaxful_rating_style
-      stylesheet_link_tag('ajaxful_rating') + content_tag(:style, ajaxful_styles.values.join("\n"),
-        :type => 'text/css') unless ajaxful_styles.blank?
+      stylesheet_link_tag('ajaxful_rating') + content_tag(:style, ajaxful_styles.values.join("\n"), :type => 'text/css') unless ajaxful_styles.blank?
+    end
+    
+    def ajaxful_rating_script
+      "<script>
+    	$(document).ready(function(){
+    		$('.#{ajaxful_rating_options[:class]} a').bind('click',function(event){
+    			event.preventDefault();
+    			$.get(this.href,{},function(response){
+    			  // TODO: Add Something to handle response
+    				//$('#response').html(response)
+    			})	
+    		})
+    	});
+    	</script>" if ajaxful_rating_options[:framework] == "jquery"
     end
   
     private
@@ -120,11 +135,17 @@ module AjaxfulRating # :nodoc:
         }
       EOS
       rated = rateable.rated_by?(user, ajaxful_rating_options[:dimension]) if user
+      
       star = if ajaxful_rating_options[:force_dynamic] || (user && ((rated && rateable.class.ajaxful_rating_options[:allow_update]) || !rated))
-        link_to_remote(i, build_remote_options({:class => a_class, :title => pluralize_title(i, rateable.class.max_rate_value)}, i))
+        if ajaxful_rating_options[:framework] == "jquery"
+          link_to(i, "#{ajaxful_rating_options[:remote_options][:url]}?#{{:stars => i, :dimension => ajaxful_rating_options[:dimension], :small_stars => ajaxful_rating_options[:small_stars]}.to_query}" ,{:class => a_class, :title => pluralize_title(i, rateable.class.max_rate_value)})
+        else
+          link_to_remote(i, build_remote_options({:class => a_class, :title => pluralize_title(i, rateable.class.max_rate_value)}, i))
+        end
       else
         content_tag(:span, i, :class => a_class, :title => current_average(rateable))
       end
+      
       content_tag(:li, star)
     end
   
