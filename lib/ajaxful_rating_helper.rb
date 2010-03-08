@@ -90,7 +90,7 @@ module AjaxfulRating # :nodoc:
         end.insert(0, content_tag(:li, current_average(rateable), :class => 'current-rating', :style => "width:#{width}%")).join
       end
       
-      ul = content_tag(:p, I18n.t('ajaxful_rating.stars.current_average', :count => rateable.total_rates(ajaxful_rating_options[:dimension]), :average => rateable.rate_average(true, ajaxful_rating_options[:dimension]),
+      ul = content_tag(:p, I18n.t('ajaxful_rating.stars.current_long', :count => rateable.total_rates(ajaxful_rating_options[:dimension]), :average => sprintf('%.1f', rateable.rate_average(true, ajaxful_rating_options[:dimension])).sub(/\.0$/, ''),
         :max => rateable.class.max_rate_value, :default => "{{count}} ratings | average {{average}}/{{max}}")) + ul
       
       if ajaxful_rating_options[:wrap]
