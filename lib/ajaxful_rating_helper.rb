@@ -90,8 +90,10 @@ module AjaxfulRating # :nodoc:
         end.insert(0, content_tag(:li, current_average(rateable), :class => 'current-rating', :style => "width:#{width}%")).join
       end
       
-      ul = content_tag(:p, I18n.t('ajaxful_rating.stars.current_long', :count => rateable.total_rates(ajaxful_rating_options[:dimension]), :average => number_with_precision(rateable.rate_average(true, ajaxful_rating_options[:dimension]), :precision => 1),
-        :max => rateable.class.max_rate_value, :default => "{{count}} ratings | average {{average}}/{{max}}")) + ul
+      if ajaxful_rating_options[:show_text]
+        ul = content_tag(:p, I18n.t('ajaxful_rating.stars.current_long', :count => rateable.total_rates(ajaxful_rating_options[:dimension]), :average => number_with_precision(rateable.rate_average(true, ajaxful_rating_options[:dimension]), :precision => 1),
+          :max => rateable.class.max_rate_value, :default => "{{count}} ratings | average {{average}}/{{max}}")) + ul
+      end
       
       if ajaxful_rating_options[:wrap]
         content_tag(:div, ul, :class => 'ajaxful-rating-wrapper', :id => "ajaxful-rating-#{!ajaxful_rating_options[:dimension].blank? ?
@@ -163,7 +165,8 @@ module AjaxfulRating # :nodoc:
         :small_stars => false,
         :small_star_class => 'small-star',
         :html => {},
-        :remote_options => {:method => :post}
+        :remote_options => {:method => :post},
+        :show_text => false
       }
     end
   
@@ -193,6 +196,8 @@ module AjaxfulRating # :nodoc:
     # Extracts the hash options and returns the user instance.
     def extract_options(rateable, *args)
       ajaxful_rating_options[:show_user_rating] = false  # Reset
+      ajaxful_rating_options[:show_text] = false  # Reset
+      
       user = if args.first.class.name == rateable.class.user_class_name.classify
         args.shift
       elsif args.first != :static
