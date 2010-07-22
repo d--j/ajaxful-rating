@@ -76,7 +76,7 @@ module AjaxfulRating # :nodoc:
     #         other: "{{count}} stars out of {{total}}"
     def ratings_for(rateable, *args)
       user = extract_options(rateable, *args)
-      user_rating = if ajaxful_rating_options[:show_user_rating] == true and rateable.rated_by?(user, ajaxful_rating_options[:dimension])
+      user_rating = if rateable.rated_by?(user, ajaxful_rating_options[:dimension])
         rateable.rates(ajaxful_rating_options[:dimension]).find_by_user_id(user).stars
       else
         user_rating = 0
@@ -97,7 +97,7 @@ module AjaxfulRating # :nodoc:
       
       if ajaxful_rating_options[:wrap]
         content_tag(:div, ul, :class => 'ajaxful-rating-wrapper', :id => "ajaxful-rating-#{!ajaxful_rating_options[:dimension].blank? ?
-          "#{ajaxful_rating_options[:dimension]}-" : ''}#{rateable.class.name.tableize.singularize}-#{rateable.id}"), :'data-user_rating' => user_rating
+          "#{ajaxful_rating_options[:dimension]}-" : ''}#{rateable.class.name.tableize.singularize}-#{rateable.id}", :'data-user_rating' => user_rating)
       else
         ul
       end
